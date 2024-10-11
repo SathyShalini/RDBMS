@@ -1,0 +1,350 @@
+PL/SQL: FUNCTIONS
+
+Here’s an example of a **PL/SQL function** for the table `Employee_E22CA038`. This function will calculate and return the total salary of all employees in the table.
+
+### PL/SQL Function Code for Roll Number E22CA038:
+
+sql
+SET SERVEROUTPUT ON;
+
+-- Create the function to calculate total salary
+CREATE OR REPLACE FUNCTION GetTotalSalary
+RETURN NUMBER
+AS
+  total_salary NUMBER := 0;  -- Variable to hold the total salary
+BEGIN
+  -- Calculate the total salary of all employees
+  SELECT SUM(Salary) INTO total_salary
+  FROM Employee_E22CA038;
+
+  RETURN total_salary;  -- Return the calculated total salary
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    RETURN 0;  -- Return 0 if no employees are found
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occurred while calculating total salary: ' || SQLERRM);
+    RETURN NULL;  -- Return NULL in case of an error
+END GetTotalSalary;
+/
+
+
+### Explanation:
+1. **Function Declaration**:
+   - The function `GetTotalSalary` has no parameters and returns a `NUMBER` type, which represents the total salary of all employees.
+
+2. **BEGIN Block**:
+   - A local variable `total_salary` is initialized to `0`.
+   - The `SELECT SUM(Salary) INTO total_salary` statement calculates the sum of the `Salary` column from the `Employee_E22CA038` table and stores it in the `total_salary` variable.
+
+3. **RETURN Statement**:
+   - The function returns the total salary calculated.
+
+4. **EXCEPTION Block**:
+   - The `WHEN NO_DATA_FOUND` clause handles the case when there are no records in the table, returning `0`.
+   - The `WHEN OTHERS` clause captures any unexpected errors that occur during execution and outputs the error message, returning `NULL`.
+
+### How to Execute the Function
+1. **Create the Function**: Run the function code in your SQL environment to create the function in the database.
+
+2. **Call the Function**: You can execute the function using the following SQL command:
+
+sql
+DECLARE
+  total_sal NUMBER;  -- Variable to hold the total salary
+BEGIN
+  total_sal := GetTotalSalary();  -- Call the function
+  DBMS_OUTPUT.PUT_LINE('Total Salary of all employees: ' || total_sal);
+END;
+/
+
+
+### Output
+- If the function executes successfully, it will display the total salary of all employees, e.g.:
+  ```
+  Total Salary of all employees: 450000
+  ```
+- If there are no employees, it will display:
+  ```
+  Total Salary of all employees: 0
+  ```
+- If an error occurs, it will display the corresponding error message.
+
+PL/SQL: PROCEDURES 
+
+Here’s an example of a **PL/SQL procedure** for the table `Employee_E22CA038`. This procedure will update the salary of an employee based on their Employee ID. 
+
+### PL/SQL Procedure Code for Roll Number E22CA038:
+
+sql
+SET SERVEROUTPUT ON;
+
+-- Create the procedure to update employee salary
+CREATE OR REPLACE PROCEDURE UpdateEmployeeSalary (
+  p_employeeID IN Employee_E22CA038.EmployeeID%TYPE,
+  p_newSalary IN Employee_E22CA038.Salary%TYPE
+) AS
+BEGIN
+  -- Update the salary for the specified employee
+  UPDATE Employee_E22CA038
+  SET Salary = p_newSalary
+  WHERE EmployeeID = p_employeeID;
+
+  -- Check if any rows were updated
+  IF SQL%ROWCOUNT = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('No employee found with ID: ' || p_employeeID);
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Salary updated successfully for Employee ID: ' || p_employeeID);
+  END IF;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occurred while updating the salary: ' || SQLERRM);
+END UpdateEmployeeSalary;
+/
+
+
+### Explanation:
+1. **Procedure Declaration**:
+   - The procedure `UpdateEmployeeSalary` takes two parameters:
+     - `p_employeeID`: The Employee ID of the employee whose salary you want to update.
+     - `p_newSalary`: The new salary value to be set for the employee.
+
+2. **BEGIN Block**:
+   - The `UPDATE` statement updates the `Salary` of the employee with the specified `EmployeeID`.
+   - The `IF SQL%ROWCOUNT = 0` checks if any rows were affected by the update operation. If no rows were updated, it prints a message indicating that no employee was found with the specified ID.
+
+3. **EXCEPTION Block**:
+   - The `WHEN OTHERS` clause catches any unexpected errors that may occur during the execution of the procedure and displays the error message using `SQLERRM`.
+
+### How to Execute the Procedure
+1. **Create the Procedure**: Run the procedure code in your SQL environment to create the procedure in the database.
+  
+2. **Call the Procedure**: You can execute the procedure using the following SQL command:
+
+sql
+BEGIN
+  UpdateEmployeeSalary(1, 75000);  -- Example: Update salary for EmployeeID 1 to 75000
+END;
+/
+
+
+### Output
+- If the update is successful, it will display:
+  ```
+  Salary updated successfully for Employee ID: 1
+  ```
+- If there is no employee with the specified ID, it will display:
+  
+  No employee found with ID: 1
+  
+- If an error occurs, it will display the corresponding error message.
+
+PL/SQL: EXCEPTION HANDLING
+
+Here’s an example of **PL/SQL code demonstrating exception handling** for the table `Employee_E22CA038`. This code will attempt to divide an employee salary by their ID and handle exceptions such as division by zero and invalid data.
+
+### Exception Handling Code for Roll Number E22CA038:
+
+sql
+-- Assuming the Employee_E22CA038 table is already created and populated
+SET SERVEROUTPUT ON;
+
+DECLARE
+  -- Variable declarations
+  v_employeeID Employee_E22CA038.EmployeeID%TYPE;
+  v_salary Employee_E22CA038.Salary%TYPE;
+  v_division_result NUMBER;
+
+  -- Exception declarations
+  division_by_zero EXCEPTION;
+  invalid_employee EXCEPTION;
+
+BEGIN
+  -- Cursor to fetch employee data
+  FOR emp_record IN (SELECT EmployeeID, Salary FROM Employee_E22CA038) LOOP
+    v_employeeID := emp_record.EmployeeID;
+    v_salary := emp_record.Salary;
+
+    -- Attempt to divide salary by EmployeeID
+    IF v_employeeID = 0 THEN
+      RAISE division_by_zero;  -- Raise exception if EmployeeID is zero
+    ELSE
+      v_division_result := v_salary / v_employeeID;
+      DBMS_OUTPUT.PUT_LINE('Employee ID: ' || v_employeeID || ', Salary: ' || v_salary || 
+                           ', Salary divided by Employee ID: ' || v_division_result);
+    END IF;
+
+  END LOOP;
+
+EXCEPTION
+  WHEN division_by_zero THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Division by zero is not allowed.');
+    
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM);
+END;
+/
+
+Explanation:
+1. **Variable Declarations**:
+   - `v_employeeID`: Stores the employee ID.
+   - `v_salary`: Stores the employees salary.
+   - `v_division_result`: Stores the result of the division operation.
+
+2. **Exception Declarations**:
+   - `division_by_zero`: Custom exception to handle division by zero.
+   - `invalid_employee`: Placeholder for handling any other invalid employee-related issues.
+
+3. **BEGIN Block**:
+   - A **cursor FOR loop** is used to iterate through all records in the `Employee_E22CA038` table.
+   - For each employee, the code checks if `EmployeeID` is zero. If it is, the `division_by_zero` exception is raised.
+   - If the `EmployeeID` is valid, the salary is divided by the `EmployeeID`, and the result is displayed.
+
+4. **EXCEPTION Block**:
+   - The `WHEN division_by_zero` clause handles the case where division by zero occurs, displaying an appropriate error message.
+   - The `WHEN OTHERS` clause is a catch-all for any other unexpected exceptions, printing the error message using `SQLERRM`.
+
+### Running the Program
+- Execute this PL/SQL block in your database environment where the `Employee_E22CA038` table is present.
+- The output will show the result of dividing salaries by their respective Employee IDs, or error messages if any exceptions occur.
+
+
+PL/SQL: CURSOR
+Here’s an example of a **PL/SQL program using cursors** with the table `Employee_E22CA038`. This program will display the employee details along with their salaries.
+
+### Cursor Code for Roll Number E22CA038:
+
+sql
+-- Assuming the Employee_E22CA038 table is already created
+CREATE TABLE Employee_E22CA038 (
+  EmployeeID NUMBER(5) PRIMARY KEY,
+  EmployeeName VARCHAR2(50),
+  Salary NUMBER(10),
+  Address VARCHAR2(100)
+);
+
+-- Sample Data Insertion
+INSERT INTO Employee_E22CA038 VALUES (1, 'John Doe', 50000, '123 Main St');
+INSERT INTO Employee_E22CA038 VALUES (2, 'Jane Smith', 60000, '456 Elm St');
+INSERT INTO Employee_E22CA038 VALUES (3, 'Alice Johnson', 55000, '789 Pine St');
+
+-- PL/SQL Block using Cursor
+SET SERVEROUTPUT ON;
+
+DECLARE
+  -- Variable declarations for cursor
+  CURSOR emp_cursor IS
+    SELECT EmployeeID, EmployeeName, Salary FROM Employee_E22CA038;
+
+  v_employeeID Employee_E22CA038.EmployeeID%TYPE;
+  v_employeeName Employee_E22CA038.EmployeeName%TYPE;
+  v_salary Employee_E22CA038.Salary%TYPE;
+  
+BEGIN
+  -- Open the cursor
+  OPEN emp_cursor;
+
+  DBMS_OUTPUT.PUT_LINE('Employee Details:');
+
+  -- Loop through the cursor
+  LOOP
+    FETCH emp_cursor INTO v_employeeID, v_employeeName, v_salary;
+    EXIT WHEN emp_cursor%NOTFOUND;
+
+    -- Display employee details
+    DBMS_OUTPUT.PUT_LINE('ID: ' || v_employeeID || ', Name: ' || v_employeeName || ', Salary: ' || v_salary);
+  END LOOP;
+
+  -- Close the cursor
+  CLOSE emp_cursor;
+END;
+/
+
+
+### Explanation:
+1. **Table Creation**: The `Employee_E22CA038` table is created with columns for `EmployeeID`, `EmployeeName`, `Salary`, and `Address`.
+2. **Sample Data**: Inserting sample employee data into the `Employee_E22CA038` table.
+3. **Cursor Declaration**: The cursor `emp_cursor` is declared to select `EmployeeID`, `EmployeeName`, and `Salary` from the `Employee_E22CA038` table.
+4. **Variables**: Three variables (`v_employeeID`, `v_employeeName`, and `v_salary`) are declared to hold the fetched values.
+5. **Cursor Operations**:
+   - The cursor is opened with `OPEN emp_cursor;`.
+   - A loop is started to fetch each row from the cursor.
+   - The `EXIT WHEN emp_cursor%NOTFOUND;` statement ensures the loop exits when all rows are processed.
+   - The details of each employee are displayed using `DBMS_OUTPUT.PUT_LINE`.
+6. **Closing the Cursor**: The cursor is closed after the loop to release resources.
+
+### Running the Program
+To run this PL/SQL program:
+- Make sure you have the `Employee_E22CA038` table created and populated with data.
+- Execute the PL/SQL block. You should see the employee details printed in the output console.
+
+
+
+PL/SQL: TRIGGERS
+Trigger Code for Roll Number E22CA038:
+
+sql
+-- Create a table to log salary changes
+CREATE TABLE Salary_Log_E22CA038 (
+  EmployeeID NUMBER(5),
+  Old_Salary NUMBER(10),
+  New_Salary NUMBER(10),
+  Change_Date DATE
+);
+
+-- Create the trigger
+CREATE OR REPLACE TRIGGER Salary_Change_Trigger_E22CA038
+BEFORE UPDATE OF Salary ON Employee_E22CA038
+FOR EACH ROW
+WHEN (OLD.Salary IS NOT NULL AND NEW.Salary IS NOT NULL)
+BEGIN
+  -- Insert a log entry with the old and new salary
+  INSERT INTO Salary_Log_E22CA038 (EmployeeID, Old_Salary, New_Salary, Change_Date)
+  VALUES (:OLD.EmployeeID, :OLD.Salary, :NEW.Salary, SYSDATE);
+
+  -- Output the salary difference for debugging/logging purposes
+  DBMS_OUTPUT.PUT_LINE('Employee ID: ' || :OLD.EmployeeID);
+  DBMS_OUTPUT.PUT_LINE('Old Salary: ' || :OLD.Salary);
+  DBMS_OUTPUT.PUT_LINE('New Salary: ' || :NEW.Salary);
+  DBMS_OUTPUT.PUT_LINE('Salary Difference: ' || (:NEW.Salary - :OLD.Salary));
+END;
+/
+
+
+### Explanation:
+- **`Salary_Log_E22CA038`**: A table created to store log entries for salary changes. Each time a salary update happens, it records the `EmployeeID`, the `Old_Salary`, the `New_Salary`, and the date (`Change_Date`) of the change.
+- **Trigger `Salary_Change_Trigger_E22CA038`**:
+  - This trigger is executed **before** the salary of an employee is updated.
+  - It checks if both the old and new salaries are not null and inserts the details of the change into the `Salary_Log_E22CA038` table.
+  - It also uses `DBMS_OUTPUT.PUT_LINE` to print the salary details to the output console for reference.
+
+### Table for Employee Details:
+Ensure you have the `Employee_E22CA038` table created as follows:
+
+sql
+CREATE TABLE Employee_E22CA038 (
+  EmployeeID NUMBER(5) PRIMARY KEY,
+  EmployeeName VARCHAR2(50),
+  Salary NUMBER(10),
+  Address VARCHAR2(100)
+);
+
+
+### Testing the Trigger:
+1. Insert some employees into `Employee_E22CA038`.
+2. Update an employee’s salary and check the `Salary_Log_E22CA038` table to see if the changes are logged.
+
+Example:
+
+sql
+-- Insert sample data
+INSERT INTO Employee_E22CA038 VALUES (1, 'John Doe', 50000, '123 Main St');
+INSERT INTO Employee_E22CA038 VALUES (2, 'Jane Smith', 60000, '456 Elm St');
+
+-- Update salary to trigger the change
+UPDATE Employee_E22CA038 SET Salary = 55000 WHERE EmployeeID = 1;
+
+-- Check the salary log
+SELECT * FROM Salary_Log_E22CA038;
+
+This trigger ensures that any salary update is tracked and logged for future auditing.
